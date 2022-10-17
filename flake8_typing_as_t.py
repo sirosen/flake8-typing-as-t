@@ -3,14 +3,14 @@ import ast
 __version__ = "0.0.1"
 
 _CODEMAP = {
-    "TYI01": "bare import of typing module",
-    "TYI02": "import of typing module with an alias other than 't'",
-    "TYI03": "import from typing module",
+    "TYT01": "bare import of typing module",
+    "TYT02": "import of typing module with an alias other than 't'",
+    "TYT03": "import from typing module",
 }
 
 
 class Plugin:
-    name = "typing-imports"
+    name = "typing-as-t"
     version = __version__
 
     # args to init determine plugin behavior. see:
@@ -41,10 +41,10 @@ class ImportVisitor(ErrorRecordingVisitor):
         for alias in node.names:
             if alias.name == "typing":
                 if alias.asname is None:
-                    self._record(node, "TYI01")
+                    self._record(node, "TYT01")
                 elif alias.asname != "t":
-                    self._record(node, "TYI02")
+                    self._record(node, "TYT02")
 
     def visit_ImportFrom(self, node):  # an `from foo import ...` clause
         if node.module == "typing":
-            self._record(node, "TYI03")
+            self._record(node, "TYT03")

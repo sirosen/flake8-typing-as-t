@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "flake8-typing-imports"
+name = "flake8-typing-as-t"
 description = 'A flake8 plugin to check typing import style'
 readme = "README.md"
 requires-python = ">=3.7"
@@ -26,16 +26,16 @@ dependencies = []
 dynamic = ["version"]
 
 [project.entry-points."flake8.extension"]
-TYI = "flake8_typing_imports:Plugin"
+TYT = "flake8_typing_as_t:Plugin"
 
 [project.urls]
-source = "https://github.com/sirosen/flake8-typing-imports"
+source = "https://github.com/sirosen/flake8-typing-as-t"
 
 [tool.hatch.version]
-path = "flake8_typing_imports.py"
+path = "flake8_typing_as_t.py"
 
 [tool.hatch.build]
-include = ["flake8_typing_imports.py"]
+include = ["flake8_typing_as_t.py"]
 
 [tool.hatch.envs.demo]
 description = "Run the plugin as part of flake8 on examples"
