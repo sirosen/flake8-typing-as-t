@@ -39,15 +39,8 @@ else:
     from typing import Literal
 ```
 
-Currently, `flake8-typing-as-t` does not have special handling for this.
-Users should use a `noqa` comment as follows:
-
-```python
-if sys.version_info < (3, 8):
-    from typing_extensions import Literal
-else:
-    from typing import Literal  # noqa: TYT03
-```
+`flake8-typing-as-t` allows for this usage by checking if the import is inside
+of a test on `sys.version_info` against a tuple.
 
 ## License
 
