@@ -1,39 +1,54 @@
 import ast
+import dataclasses
 
-__version__ = "0.0.2"
+__version__ = "0.0.3"
 
-_CODEMAP = {
-    "TYT01": "bare import of typing module",
-    "TYT02": "import of typing module with an alias other than 't'",
-    "TYT03": "import from typing module",
-}
+_TYT01 = "TYT01 bare import of typing module"
+_TYT02 = "TYT02 import of typing module with an alias other than 't'"
+_TYT03 = "TYT03 import from typing module"
 
 
+@dataclasses.dataclass
 class Plugin:
     name = "typing-as-t"
     version = __version__
+    tree: ast.AST
 
-    # args to init determine plugin behavior. see:
-    # https://flake8.pycqa.org/en/latest/internal/utils.html#flake8.utils.parameters_for
-    def __init__(self, tree):
-        self.tree = tree
-
-    # Plugin.run() is how checks will run. For detail, see implementation of:
-    # https://flake8.pycqa.org/en/latest/internal/checker.html#flake8.checker.FileChecker.run_ast_checks
     def run(self):
         visitor = ImportVisitor()
         visitor.visit(self.tree)
-        for lineno, col, code in visitor.collect:
-            yield lineno, col, code + " " + _CODEMAP[code], type(self)
+        for (node, message) in visitor.collect:
+            yield node.lineno, node.col_offset, message, None
 
 
-class ErrorRecordingVisitor(ast.NodeVisitor):
+class ImportVisitor(ast.NodeVisitor):
     def __init__(self):
         super().__init__()
         self.collect = []
+        self.in_version_check = False
 
-    def _record(self, node, code):
-        self.collect.append((node.lineno, node.col_offset, code))
+    def visit_If(self, node):
+        oldval = self.in_version_check
+        if _is_version_check(node):
+            self.in_version_check = True
+
+        for child in ast.iter_child_nodes(node):
+            self.visit(child)
+
+        self.in_version_check = oldval
+
+    def visit_Import(self, node):  # an `import foo` clause
+        for alias in node.names:
+            if alias.name == "typing":
+                if alias.asname is None:
+                    self.collect.append((node, _TYT01))
+                elif alias.asname != "t":
+                    self.collect.append((node, _TYT02))
+
+    def visit_ImportFrom(self, node):  # an `from foo import ...` clause
+        if node.module == "typing":
+            if not self.in_version_check:
+                self.collect.append((node, _TYT03))
 
 
 def _is_version_check(node: ast.If) -> bool:
@@ -65,32 +80,3 @@ def _is_version_check(node: ast.If) -> bool:
                 return True
     else:
         return False
-
-
-class ImportVisitor(ErrorRecordingVisitor):
-    def __init__(self):
-        super().__init__()
-        self.in_version_check = False
-
-    def visit_If(self, node):
-        oldval = self.in_version_check
-        if _is_version_check(node):
-            self.in_version_check = True
-
-        for child in ast.iter_child_nodes(node):
-            self.visit(child)
-
-        self.in_version_check = oldval
-
-    def visit_Import(self, node):  # an `import foo` clause
-        for alias in node.names:
-            if alias.name == "typing":
-                if alias.asname is None:
-                    self._record(node, "TYT01")
-                elif alias.asname != "t":
-                    self._record(node, "TYT02")
-
-    def visit_ImportFrom(self, node):  # an `from foo import ...` clause
-        if node.module == "typing":
-            if not self.in_version_check:
-                self._record(node, "TYT03")
