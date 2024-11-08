@@ -1,10 +1,5 @@
 # flake8-typing-as-t
 
-[![PyPI - Version](https://img.shields.io/pypi/v/flake8-typing-as-t.svg)](https://pypi.org/project/flake8-typing-as-t)
-[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/flake8-typing-as-t.svg)](https://pypi.org/project/flake8-typing-as-t)
-
------
-
 **Table of Contents**
 
 - [Overview](#overview)
