@@ -17,12 +17,12 @@ class Plugin:
     def run(self):
         visitor = ImportVisitor()
         visitor.visit(self.tree)
-        for (node, message) in visitor.collect:
+        for node, message in visitor.collect:
             yield node.lineno, node.col_offset, message, None
 
 
 class ImportVisitor(ast.NodeVisitor):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.collect = []
         self.in_version_check = False
