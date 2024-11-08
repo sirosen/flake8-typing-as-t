@@ -45,3 +45,21 @@ of a test on `sys.version_info` against a tuple.
 ## License
 
 `flake8-typing-as-t` is distributed under the terms of the [MIT](https://spdx.org/licenses/MIT.html) license.
+
+## Changelog
+
+### 1.0.0
+
+* Initial production release
+
+### 0.0.3
+
+* Internal refactoring for improved performance
+
+### 0.0.2
+
+* Add support for `sys.version_info` dispatch
+
+### 0.0.1
+
+* Initial release
