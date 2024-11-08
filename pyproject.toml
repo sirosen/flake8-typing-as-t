@@ -1,13 +1,16 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["flit-core"]
+build-backend = "flit_core.buildapi"
+
+[tool.flit.sdist]
+include = ["LICENSE.txt"]
 
 [project]
 name = "flake8-typing-as-t"
 description = 'A flake8 plugin to check typing import style'
 readme = "README.md"
 requires-python = ">=3.7"
-license = "MIT"
+license = { text = "MIT" }
 keywords = []
 authors = [
   { name = "Stephen Rosen", email = "sirosen0@gmail.com" },
