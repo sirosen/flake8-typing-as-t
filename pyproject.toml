@@ -10,7 +10,7 @@ requires-python = ">=3.7"
 license = "MIT"
 keywords = []
 authors = [
-  { name = "Stephen Rosen", email = "sirosen@globus.org" },
+  { name = "Stephen Rosen", email = "sirosen0@gmail.com" },
 ]
 classifiers = [
   "Development Status :: 5 - Production/Stable",
