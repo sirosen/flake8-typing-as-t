@@ -1,7 +1,7 @@
 import ast
 import dataclasses
 
-__version__ = "0.0.3"
+__version__ = "1.0.0"
 
 _TYT01 = "TYT01 bare import of typing module"
 _TYT02 = "TYT02 import of typing module with an alias other than 't'"
