@@ -37,6 +37,68 @@ else:
 `flake8-typing-as-t` allows for this usage by checking if the import is inside
 of a test on `sys.version_info` against a tuple.
 
+## Inspiration and Rationale
+
+I first saw `import typing as t` in the `pallets` projects, probably in `flask` or `click`.
+
+It didn't _click_ for me right away!
+But after working on various codebases with different strategies (including no
+strategy) for how to handling `typing` imports, the benefits became clear.
+
+There are three primary consistent ways of handling `typing` imports:
+
+- always `from typing import <Symbol>`
+- always `import typing`
+- always `import typing as t`
+
+Examining the problems with the other styles shows that `import typing as t`
+is the best choice.
+
+The trouble with standardizing around the from-import style is that your import
+lines are constantly changing as code evolves.
+```diff
++from typing import Any, ClassVar
+-from typing import Any
+```
+
+Which means that as a reviewer, you are exposed to a lot more churn, and (much
+worse!) you frequently deal with "dumb" merge conflicts when two PRs change the
+same import lines.
+
+`import typing` solves the conflict/diff problem, but frequently makes otherwise
+short function signature lines and other usages wrap.
+
+Consider:
+
+```python
+def foo(xs: typing.Iterator[T | None], ys: typing.Iterator[T | None]) -> typing.Iterator[tuple[T, T]]:
+    for item1, item2 in zip(xs, ys):
+        if item1 is not None and item2 is not None:
+            yield (item1, item2)
+```
+
+vs
+
+```python
+def foo(xs: t.Iterator[T | None], ys: t.Iterator[T | None]) -> t.Iterator[tuple[T, T]]:
+    ...
+```
+
+That's a 102 character signature vs an 87 character one.
+A max line length of 88 chars is common.
+Surprisingly often, the extra characters in `typing` are the only reason that a
+line will wrap under code style rules.
+
+### A Neighbor of Builtins
+
+Treating the `typing` module specially in your code, enforcing that it's always
+imported under a special single character name, also has a strong influence on
+how you think about `typing` in Python.
+
+`t` becomes a special symbol for "parts of the type system".
+`typing` becomes more similar to the language level builtins, without the
+namespace pollution and readability problems we'd have with a star-import.
+
 ## License
 
 `flake8-typing-as-t` is distributed under the terms of the [MIT](https://spdx.org/licenses/MIT.html) license.
