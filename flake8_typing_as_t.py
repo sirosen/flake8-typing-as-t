@@ -1,10 +1,24 @@
+from __future__ import annotations
+
 import ast
 import dataclasses
+import typing as _t
+
+if _t.TYPE_CHECKING:
+    import argparse as _ap
+    import flake8 as _f8
 
 __version__ = "1.0.0"
 
+_TYT00 = (
+    "TYT00 {plugin_name} plugin misconfigured: expected the configured "
+    "imported name to be a valid Python identifier but got {imported_name!r}"
+)
 _TYT01 = "TYT01 bare import of typing module"
-_TYT02 = "TYT02 import of typing module with an alias other than 't'"
+_TYT02 = (
+    "TYT02 import of typing module with an alias other "
+    "than '{imported_name}'"
+)
 _TYT03 = "TYT03 import from typing module"
 
 
@@ -13,17 +27,69 @@ class Plugin:
     name = "typing-as-t"
     version = __version__
     tree: ast.AST
+    _imported_name: _t.ClassVar[str]
 
     def run(self):
-        visitor = ImportVisitor()
+        imported_name = self._imported_name
+        if not imported_name.isidentifier():
+            yield (
+                0,
+                0,
+                _TYT00.format(
+                    plugin_name=self.name,
+                    imported_name=imported_name,
+                ),
+                None,
+            )
+            return
+
+        visitor = ImportVisitor(imported_name=imported_name)
         visitor.visit(self.tree)
         for node, message in visitor.collect:
             yield node.lineno, node.col_offset, message, None
 
+    @classmethod
+    def add_options(
+        cls,
+        option_manager: _f8.options.manager.OptionManager,
+        /,
+    ) -> None:
+        """Register plugin configuration options.
+
+        :param option_manager: flake8's variant of the option parser object
+        """
+        option_manager.add_option(
+            f"--{cls.name}-imported-name",
+            default="t",
+            help=
+            "Name under which the `typing` module must be imported. "
+            "(Default: %(default)s)",
+            metavar="imported_name",
+            parse_from_config=True,
+            type=str,
+        )
+
+    @classmethod
+    def parse_options(
+        cls,
+        option_manager: _f8.options.manager.OptionManager,
+        options: _ap.Namespace,
+        args: list[str],  # options.filenames
+        /,
+    ) -> None:
+        """Store user-provided configuration on the plugin class.
+
+        :param option_manager: flake8's variant of the option parser object
+        :param options: argparse namespace object
+        :param args: a list of trailing CLI arguments interpreted as filenames
+        """
+        cls._imported_name = options.typing_as_t_imported_name
+
 
 class ImportVisitor(ast.NodeVisitor):
-    def __init__(self) -> None:
+    def __init__(self, *, imported_name) -> None:
         super().__init__()
+        self._imported_name = imported_name
         self.collect = []
         self.in_version_check = False
 
@@ -42,8 +108,13 @@ class ImportVisitor(ast.NodeVisitor):
             if alias.name == "typing":
                 if alias.asname is None:
                     self.collect.append((node, _TYT01))
-                elif alias.asname != "t":
-                    self.collect.append((node, _TYT02))
+                elif alias.asname != self._imported_name:
+                    self.collect.append(
+                        (
+                            node,
+                            _TYT02.format(imported_name=self._imported_name),
+                        ),
+                    )
 
     def visit_ImportFrom(self, node):  # an `from foo import ...` clause
         if node.module == "typing":
