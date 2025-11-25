@@ -2,23 +2,22 @@ from __future__ import annotations
 
 import ast
 import dataclasses
+import importlib.metadata
 import typing as _t
 
 if _t.TYPE_CHECKING:
     import argparse as _ap
+
     import flake8 as _f8
 
-__version__ = "1.0.0"
+__version__ = importlib.metadata.version("flake8-typing-as-t")
 
 _TYT00 = (
     "TYT00 {plugin_name} plugin misconfigured: expected the configured "
     "imported name to be a valid Python identifier but got {imported_name!r}"
 )
 _TYT01 = "TYT01 bare import of typing module"
-_TYT02 = (
-    "TYT02 import of typing module with an alias other "
-    "than '{imported_name}'"
-)
+_TYT02 = "TYT02 import of typing module with an alias other than '{imported_name}'"
 _TYT03 = "TYT03 import from typing module"
 
 
@@ -61,9 +60,10 @@ class Plugin:
         option_manager.add_option(
             f"--{cls.name}-imported-name",
             default="t",
-            help=
-            "Name under which the `typing` module must be imported. "
-            "(Default: %(default)s)",
+            help=(
+                "Name under which the `typing` module must be imported. "
+                "(Default: %(default)s)"
+            ),
             metavar="imported_name",
             parse_from_config=True,
             type=str,

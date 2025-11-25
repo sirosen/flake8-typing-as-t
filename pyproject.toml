@@ -7,6 +7,7 @@ include = ["LICENSE.txt"]
 
 [project]
 name = "flake8-typing-as-t"
+version = "1.0.0"
 description = 'A flake8 plugin to check typing import style'
 readme = "README.md"
 requires-python = ">=3.7"
@@ -24,19 +25,12 @@ classifiers = [
 dependencies = [
   "flake8 >= 5",
 ]
-dynamic = ["version"]
 
 [project.entry-points."flake8.extension"]
 TYT = "flake8_typing_as_t:Plugin"
 
 [project.urls]
 source = "https://github.com/sirosen/flake8-typing-as-t"
-
-[tool.hatch.version]
-path = "flake8_typing_as_t.py"
-
-[tool.hatch.build]
-include = ["flake8_typing_as_t.py"]
 
 [tool.hatch.envs.demo]
 description = "Run the plugin as part of flake8 on examples"
