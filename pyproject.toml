@@ -10,7 +10,7 @@ include = ["LICENSE.txt"]
 
 [project]
 name = "flake8-typing-as-t"
-version = "1.0.0"
+version = "1.1.0"
 description = 'A flake8 plugin to check typing import style'
 readme = "README.md"
 requires-python = ">=3.7"

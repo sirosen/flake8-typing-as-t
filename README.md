@@ -125,7 +125,7 @@ namespace pollution and readability problems we'd have with a star-import.
 
 ## Changelog
 
-### Unreleased (1.1.0)
+### 1.1.0
 
 * Added support for configuring the import name, for `as _t` style
 
