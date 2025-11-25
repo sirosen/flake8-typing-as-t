@@ -4,7 +4,7 @@ import argparse
 import ast
 import dataclasses
 import importlib.metadata
-import typing as _t
+import typing as t
 
 import flake8
 
@@ -24,7 +24,7 @@ class Plugin:
     name = "typing-as-t"
     version = __version__
     tree: ast.AST
-    _imported_name: _t.ClassVar[str]
+    _imported_name: t.ClassVar[str]
 
     def run(self):
         imported_name = self._imported_name

@@ -2,6 +2,3 @@
 exclude = .git,.tox,__pycache__,.eggs,dist,venv,.venv*,docs,build,_build
 max-line-length = 88
 extend-ignore = W503,E203,
-
-# `import typing as _t`
-typing-as-t-imported-name = _t
