@@ -1,14 +1,12 @@
 from __future__ import annotations
 
+import argparse
 import ast
 import dataclasses
 import importlib.metadata
 import typing as _t
 
-if _t.TYPE_CHECKING:
-    import argparse as _ap
-
-    import flake8 as _f8
+import flake8
 
 __version__ = importlib.metadata.version("flake8-typing-as-t")
 
@@ -50,7 +48,7 @@ class Plugin:
     @classmethod
     def add_options(
         cls,
-        option_manager: _f8.options.manager.OptionManager,
+        option_manager: flake8.options.manager.OptionManager,
         /,
     ) -> None:
         """Register plugin configuration options.
@@ -72,8 +70,8 @@ class Plugin:
     @classmethod
     def parse_options(
         cls,
-        option_manager: _f8.options.manager.OptionManager,
-        options: _ap.Namespace,
+        option_manager: flake8.options.manager.OptionManager,
+        options: argparse.Namespace,
         args: list[str],  # options.filenames
         /,
     ) -> None:
