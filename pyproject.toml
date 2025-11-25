@@ -1,9 +1,12 @@
+# --- build config (build-system and tool.flit)
 [build-system]
 requires = ["flit-core"]
 build-backend = "flit_core.buildapi"
 
 [tool.flit.sdist]
 include = ["LICENSE.txt"]
+
+# --- project config (project and dependency-groups)
 
 [project]
 name = "flake8-typing-as-t"
@@ -32,12 +35,83 @@ TYT = "flake8_typing_as_t:Plugin"
 [project.urls]
 source = "https://github.com/sirosen/flake8-typing-as-t"
 
-[tool.hatch.envs.demo]
-description = "Run the plugin as part of flake8 on examples"
-[tool.hatch.envs.demo.scripts]
-run = "flake8 --config demo-files/flake8-config.ini demo-files/"
+[dependency-groups]
+coverage = ["coverage[toml]"]
+test = ["pytest", {include-group = "coverage"}]
+lint = ["pre-commit"]
 
-[tool.hatch.envs.test]
-dependencies = ["coverage[toml]", "pytest"]
-[tool.hatch.envs.test.scripts]
-pytest = "coverage run -m pytest"
+
+# --- coveragepy
+[tool.coverage.run]
+parallel = true
+source = ["flake8_typing_as_t"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+exclude_lines = [
+    # the pragma to disable coverage
+    "pragma: no cover",
+    # don't complain if tests don't hit unimplemented methods/modes
+    "raise NotImplementedError",
+    # don't check on executable components of importable modules
+    "if __name__ == .__main__.:",
+    # mypy-only code segments
+    "if t.TYPE_CHECKING:",
+    # type-checking overloads
+    "@t.overload"
+]
+
+
+# --- tox
+
+[tool.tox]
+requires = ["tox>=4.22"]
+env_list = [
+    "lint",
+    "covclean",
+    "covcombine",
+    "covreport",
+    "3.9",
+    "3.14"
+]
+
+[tool.tox.env_run_base]
+description = "Run tests"
+package = "wheel"
+wheel_build_env = "build_wheel"
+dependency_groups = ["test"]
+commands = [["coverage", "run", "-m", "pytest", "-v", {replace = "posargs", extend = true}]]
+depends = ["covclean"]
+
+[tool.tox.env.covclean]
+description = "Clean coverage outputs"
+skip_install = true
+dependency_groups = ["coverage"]
+commands = [["coverage", "erase"]]
+depends = []
+
+[tool.tox.env.covcombine]
+description = "Combine coverage outputs"
+skip_install = true
+dependency_groups = ["coverage"]
+commands = [["coverage", "combine"]]
+depends = ["3.9", "3.14"]
+
+[tool.tox.env.covreport]
+description = "Report on combined coverage outputs"
+skip_install = true
+dependency_groups = ["coverage"]
+commands_pre = [["coverage", "html", "--fail-under=0"]]
+commands = [["coverage", "report"]]
+depends = ["covcombine"]
+
+[tool.tox.env.lint]
+description = "Run linters and formatters"
+dependency_groups = ["lint"]
+commands = [["pre-commit", "run", "-a", {replace = "posargs", extend = true}]]
+depends = []
+
+[tool.tox.env.demo-run]
+description = "Run the plugin as part of flake8 on examples"
+commands = [["flake8", "--config", "demo-files/flake8-config.ini", "demo-files/"]]
