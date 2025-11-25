@@ -40,6 +40,10 @@ include = ["flake8_typing_as_t.py"]
 
 [tool.hatch.envs.demo]
 description = "Run the plugin as part of flake8 on examples"
-dependencies = ["flake8"]
 [tool.hatch.envs.demo.scripts]
 run = "flake8 --config demo-files/flake8-config.ini demo-files/"
+
+[tool.hatch.envs.test]
+dependencies = ["coverage[toml]", "pytest"]
+[tool.hatch.envs.test.scripts]
+pytest = "coverage run -m pytest"
