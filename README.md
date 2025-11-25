@@ -37,6 +37,26 @@ else:
 `flake8-typing-as-t` allows for this usage by checking if the import is inside
 of a test on `sys.version_info` against a tuple.
 
+## Configuring the Import Name
+
+By default, `flake8-typing-as-t` enforces that the style be `import typing as t`.
+However, another common style, with the same benefits, is `import typing as _t`.
+
+`import typing as _t` can be helpful in projects with strong policies around private vs public module members (including imported names).
+
+To support this style, and other potential conventions, `flake8-typing-as-t` supports a config and CLI flag:
+
+```bash
+flake8 --typing-as-t-import-name "_t"
+```
+
+or, in `.flake8` config:
+
+```ini
+[flake8]
+typing-as-t-import-name = _t
+```
+
 ## Inspiration and Rationale
 
 I first saw `import typing as t` in the `pallets` projects, probably in `flask` or `click`.
@@ -104,6 +124,10 @@ namespace pollution and readability problems we'd have with a star-import.
 `flake8-typing-as-t` is distributed under the terms of the [MIT](https://spdx.org/licenses/MIT.html) license.
 
 ## Changelog
+
+### Unreleased (1.1.0)
+
+* Added support for configuring the import name, for `as _t` style
 
 ### 1.0.0
 
