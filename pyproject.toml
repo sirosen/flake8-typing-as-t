@@ -73,7 +73,11 @@ env_list = [
     "covcombine",
     "covreport",
     "3.9",
-    "3.14"
+    "3.10",
+    "3.11",
+    "3.12",
+    "3.13",
+    "3.14",
 ]
 
 [tool.tox.env_run_base]
@@ -96,7 +100,14 @@ description = "Combine coverage outputs"
 skip_install = true
 dependency_groups = ["coverage"]
 commands = [["coverage", "combine"]]
-depends = ["3.9", "3.14"]
+depends = [
+  "3.9",
+  "3.10",
+  "3.11",
+  "3.12",
+  "3.13",
+  "3.14",
+]
 
 [tool.tox.env.covreport]
 description = "Report on combined coverage outputs"

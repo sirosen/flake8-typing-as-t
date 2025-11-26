@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  merge_group:
+  pull_request:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  get-cache-key:
+    name: Calculate Cache Key
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - id: compute
+        run: |
+          echo 'key=${{
+            hashFiles(
+              'pyproject.toml',
+              '.pre-commit-config.yaml'
+            )
+          }}' >> "$GITHUB_OUTPUT"
+    outputs:
+      cache-key: ${{ steps.compute.outputs.key }}
+
+  test:
+    needs: [get-cache-key]
+    strategy:
+      matrix:
+        os:
+          - name: Linux
+            runner: ubuntu-latest
+          - name: Windows
+            runner: windows-latest
+          - name: macOS
+            runner: macos-latest
+        py: ['3.9', '3.10', '3.11', '3.12', '3.13', '3.14']
+    name: Test on ${{ matrix.os.name }}, Python ${{ matrix.py }}
+
+    # pin to a particular version until reusable-tox stabilizes
+    uses: tox-dev/workflow/.github/workflows/reusable-tox.yml@0b1e32642419392b5012b1efb66331a6babe6f79
+    with:
+      cache-key-for-dependency-files: ${{ needs.get-cache-key.outputs.cache-key }}
+      check-name: Run Tests
+      python-version: 3.12
+      runner-vm-os: ${{ matrix.os.runner }}
+      timeout-minutes: 10
+      toxenv: py${{ matrix.py }}
+      xfail: false
