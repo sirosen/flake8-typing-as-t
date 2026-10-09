@@ -17,6 +17,10 @@ _TYT00 = (
 _TYT01 = "TYT01 bare import of typing module"
 _TYT02 = "TYT02 import of typing module with an alias other than '{imported_name}'"
 _TYT03 = "TYT03 import from typing module"
+_TYT80 = (
+    "TYT80 use of a deprecated typing module member superseded by builtins: '{name}'"
+)
+_TYT81 = "TYT81 use of a deprecated typing module member with planned removal: '{name}'"
 
 
 @dataclasses.dataclass
@@ -40,7 +44,7 @@ class Plugin:
             )
             return
 
-        visitor = ImportVisitor(imported_name=imported_name)
+        visitor = TYTVisitor(imported_name=imported_name)
         visitor.visit(self.tree)
         for node, message in visitor.collect:
             yield node.lineno, node.col_offset, message, None
@@ -84,21 +88,39 @@ class Plugin:
         cls._imported_name = options.typing_as_t_imported_name
 
 
-class ImportVisitor(ast.NodeVisitor):
+class TYTVisitor(ast.NodeVisitor):
     def __init__(self, *, imported_name) -> None:
         super().__init__()
         self._imported_name = imported_name
         self.collect = []
         self.in_version_check = False
 
+        self._names_replaced_with_builtins: frozenset[str] = frozenset(
+            (
+                "Dict",
+                "List",
+                "Set",
+                "FrozenSet",
+                "Tuple",
+                "Type",
+            )
+        )
+        self._names_with_planned_removal: frozenset[str] = frozenset(
+            (
+                "ByteString",
+                "no_type_check_decorator",
+                "AnyStr",
+            )
+        )
+        self._attrs_to_check = (
+            self._names_replaced_with_builtins | self._names_with_planned_removal
+        )
+
     def visit_If(self, node):
         oldval = self.in_version_check
         if _is_version_check(node):
             self.in_version_check = True
-
-        for child in ast.iter_child_nodes(node):
-            self.visit(child)
-
+        self.generic_visit(node)
         self.in_version_check = oldval
 
     def visit_Import(self, node):  # an `import foo` clause
@@ -118,6 +140,19 @@ class ImportVisitor(ast.NodeVisitor):
         if node.module == "typing":
             if not self.in_version_check:
                 self.collect.append((node, _TYT03))
+
+    def visit_Attribute(self, node):  # any name node
+        if (
+            node.attr not in self._attrs_to_check
+            or not isinstance(node.value, ast.Name)
+            or node.value.id != self._imported_name
+        ):
+            return
+        if node.attr in self._names_replaced_with_builtins:
+            message = _TYT80.format(name=node.attr)
+        else:
+            message = _TYT81.format(name=node.attr)
+        self.collect.append((node, message))
 
 
 def _is_version_check(node: ast.If) -> bool:

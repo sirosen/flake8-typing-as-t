@@ -21,6 +21,8 @@ pip install flake8-typing-as-t
 - `TYT01`: Bare `import typing` usage
 - `TYT02`: `import typing as X` where `X` is not literal `t`
 - `TYT03`: `from typing import X` usage
+- `TYT80`: Import of a name from `typing` which was deprecated in Python 3.9 and replaced with a builtin type.
+- `TYT81`: Import of a name from `typing` which was deprecated in Python 3.9 and has a planned removal.
 
 ## Handling `typing-extensions`
 
@@ -56,6 +58,18 @@ or, in `.flake8` config:
 [flake8]
 typing-as-t-import-name = _t
 ```
+
+## Deprecated Name Rules
+
+The `TYT80` and `TYT81` rules are slightly different in scope from the import rules.
+They check for attribute usage which accesses deprecated names like `typing.Text` or `typing.Dict`.
+
+There are a large number of names in `typing` which are deprecated that are intentionally *not* flagged by these rules.
+The rationale for these omissions is that many of these renames and moves would inflict significant churn on codebases running `flake8-typing-as-t`.
+
+Is it significantly better to use `collections.abc.Iterator` rather than `typing.Iterator`?
+The benefit is unclear.
+However! It is definitely better to use `dict[A, B]` over `typing.Dict[A, B]`.
 
 ## Inspiration and Rationale
 
