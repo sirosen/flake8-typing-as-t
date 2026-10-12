@@ -13,7 +13,7 @@ name = "flake8-typing-as-t"
 version = "1.1.0"
 description = 'A flake8 plugin to check typing import style'
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.10"
 license = { text = "MIT" }
 keywords = []
 authors = [
@@ -72,12 +72,12 @@ env_list = [
     "covclean",
     "covcombine",
     "covreport",
-    "3.9",
     "3.10",
     "3.11",
     "3.12",
     "3.13",
     "3.14",
+    "3.15",
 ]
 
 [tool.tox.env_run_base]
@@ -101,12 +101,12 @@ skip_install = true
 dependency_groups = ["coverage"]
 commands = [["coverage", "combine"]]
 depends = [
-  "3.9",
   "3.10",
   "3.11",
   "3.12",
   "3.13",
   "3.14",
+  "3.15",
 ]
 
 [tool.tox.env.covreport]
