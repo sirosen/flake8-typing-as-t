@@ -19,6 +19,11 @@ verify:
 build:
     uv build
 
+# update the package version and changelog
+bump-version NEW_VERSION:
+    uvx mddj write version "{{NEW_VERSION}}"
+    sed -i "s/### Unreleased/### {{NEW_VERSION}}/" README.md
+
 # publish the package to pypi
 publish: build
     uvx flit publish
