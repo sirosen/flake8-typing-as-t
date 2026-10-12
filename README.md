@@ -139,7 +139,7 @@ namespace pollution and readability problems we'd have with a star-import.
 
 ## Changelog
 
-### Unreleased
+### 1.2.0
 
 * `flake8-typing-as-t` now reports the `TYT80` and `TYT81` rules for catching
   fully deprecated usages.
